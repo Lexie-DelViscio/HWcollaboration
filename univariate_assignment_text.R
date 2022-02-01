@@ -226,7 +226,7 @@ AIC(etb_mod_acersubset)
 #[1] 3419.997
 ## the above model just proved my suspicions on how important elevation was to the model
 
-#adding elevation interaction to main model
+#adding elevation interaction to main model-------------
 elev_interaction_mod_acersubset = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers + elev * streamdist + elev * disturb, data = acer_subset)
 summary(elev_interaction_mod_acersubset)
 
@@ -253,7 +253,7 @@ AIC(all_mod_acersubset)
 # remove abies outlier in tci and elevation  
 # identify(abies$cover ~ abies$tci, n=2)
 
-abies_subset = abies[-c(121,33), ]
+abies_subset = abies[-c(121,33,109,56,53), ]
 dim(abies_subset)
 
 # comparing the main models of original and subset
@@ -324,6 +324,7 @@ pseudo_r2(acer_poi)
 summary(abies_poi)
 summary(elev_interaction_mod_abiessubset)
 pseudo_r2(abies_poi)
+
 summary(acer_poi)
 summary(elev_interaction_mod_acersubset)
 pseudo_r2(acer_poi)
@@ -339,7 +340,23 @@ Anova(elev_interaction_mod_acersubset, type=3)
 
 
 
-### top questions... is it possible to include only a specific type of disturbance in the model (ie. Virgin)
-### with the pseudo r^2 of the abies poisson distribution being large, is this a good model? although the summary output would disagree
+### top questions... 
+# is it possible to include only a specific type of disturbance in the model (ie. Virgin)
+# with the pseudo r^2 of the abies poisson distribution being large, is this a good model? although the summary output would disagree
+# 
+# determining when OLS assumption violations from the model 
 
+reduced <- stepAIC(full_mod_abiessubset)
+
+
+# model diagnostics with plot of model
+# observed vs predicted plot lines 
+# change order of levels to choose which is the intercept
+# use contrast to visualize level code
+
+
+par(mfrow = c(2,2))
+plot(elev_interaction_mod_abiessubset)
+
+# take out 56, 109,53  from abies subset
 
