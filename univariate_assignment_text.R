@@ -179,7 +179,7 @@ plot(cover ~ beers, data = acer, xlab = 'Beers',
 
 # remove possible stream distance acer outlier
 identify(acer$cover ~ acer$streamdist, n=1)
-acer_subset = acer[-c(121, 318, 297), ]
+acer_subset = acer[-c(121, 318, 297,56,187), ]
 dim(acer_subset)
 
 plot(cover ~ streamdist, data = acer_subset, xlab = 'Stream Distance (m)',
@@ -249,6 +249,8 @@ anova(all_mod_acersubset, full_mod_acersubset)
 
 AIC(full_mod_acersubset)
 AIC(all_mod_acersubset)
+AIC(elev_interaction_mod_acersubset)
+# ele
 
 # remove abies outlier in tci and elevation  
 # identify(abies$cover ~ abies$tci, n=2)
@@ -357,6 +359,12 @@ reduced <- stepAIC(full_mod_abiessubset)
 
 par(mfrow = c(2,2))
 plot(elev_interaction_mod_abiessubset)
-
+# removed a few more outliers
 # take out 56, 109,53  from abies subset
+
+plot(elev_interaction_mod_acersubset)
+# take out 56 , 187 from acer
+
+
+
 
