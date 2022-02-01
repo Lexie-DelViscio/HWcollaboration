@@ -388,43 +388,83 @@ AIC(elev_interaction_mod_abiessubset)
 AIC(acer_poi)
 AIC(abies_poi)
 
+par(mfrow = c(2,2))
 plot(acer_test_mod)
 plot(abies_test_mod)
 
-# the AIC's also show this was helpful, so we can rename the test model as our
-# final model to present... keep in mind these final models are using the subseted data without outliers
+# the AIC's also show this was helpful, so we can rename the test models as our
+# final models to present... keep in mind these final models are all using the subseted data without outliers
+# the name was just shortened for easier access and readability. 
 
 # final models----
-par(mfrow = c(2,2))
 
 final_abies_model <- abies_test_mod
 final_acer_model <- acer_test_mod
-final_acer_poisson <- acer_poi
-final_abies_poisson <- abies_poi
+final_acer_poisson <- acer_test_poi
+final_abies_poisson <- abies_test_poi
 
+# 2) and
+# 1) part: "do model diagnostics indicate any problems with violations of OLS assumptions?"----
 # OLS versus poisson for each species----
-# when comapring these plots it confirms suspicion that the Poisson distribution is a better fit
-# for the abies species, and this is most likely due to the highly skewed elevation data
-# the points, especially in scale location and residuals- fitted are still pretty concentrated,
-# but are better distributed evenly across the lines.
-plot(final_abies_model)
-plot(final_abies_poisson)
 
+# new model to prove this point with the abies species.
+abies_elev_poi = glm(cover ~ elev, data= abies_subset, family="poisson")
+# also using elev_interaction_mod_abiessubset = lm(cover ~ elev, data= abies_subset)
+
+# When comparing these plots it confirms suspicion that the Poisson distribution is a better fit
+# for the abies species, and this is most likely due to the highly skewed elevation data. Since it can
+# be seen in the original (cover ~ elevation) plot for abies, the data is highly concentrated around 0 
+# coverage until an elevation of 1500, where the trend turns visually turns into a positive correlation between 
+# elevation and abies cover. 
+
+par(mfrow=c(1,1))
+plot(cover ~ elev, data= abies_subset)
+
+# This can be explained by the fact that the abies species are fraisir firs and they 
+# are highly selective on their habitat condition, they must be further north, or high in elevation, in order to 
+# grow. So, when the model lm(cover ~ elev, data= abies[_subset]), or any other model including elevation as a 
+# variable describing cover will not be taking into account this highly skewed data as it is working under a normal 
+# distribution. This can be seen with the hotpink link on the graph below. This is the residual line for cover ~ elev
+# for the abies species under OLS conditions. 
+
+plot(cover ~ elev, data= abies_subset)
+abline(elev_interaction_mod_abiessubset, col="hot pink")
+
+# The line trends downwards, which we know to be false as the data trend
+# actually increases as elevation increases, after a specific point. However, it can be seen through the blue line on the 
+# graph that when the model glm(cover ~ elev, data= abies[_subset], family="poisson") is plotted the regression line is 
+# much more in line with what we would expect to predict the data. 
+
+plot(cover ~ elev, data= abies_subset)
+abline(elev_interaction_mod_abiessubset, col="hot pink")
+abline(abies_elev_poi, col= "light blue")
+
+# The intercept begins around the time the data points begin to increase, and it continues with an upward trend until 
+# the end of the graph, just like the data points.
+
+# However, for the acer species,
 # when comparing these plots it confirms suspicion that the OLS distribution is a better fit
 # for the acer species, the residuals vs leverage graph and scale- location are much more
-# evenly distributed along the line during the OLS regression
+# better distributed along the line, and more evenly distributed in space during the OLS regression
+# rather than the poisson regression. 
+
+par(mfrow= c(2,2))
 plot(final_acer_model)
 plot(final_acer_poisson)
 
+# more proof that OLS is better for acer, and poisson is better for abies
 pseudo_r2(final_acer_poisson)
 pseudo_r2(final_abies_poisson)
 
 # Compare these to the output adjusted r squared from normal 
 summary(final_acer_model)
 summary(final_abies_model)
-
-# this further proves that OLS is better fitted for the Acer species as the pesudo r^2 value
+# this further proves that OLS is better fitted for the Acer species as the pseudo r^2 value
 # is less than the normal r^2 value, whereas the pseudo R^2 value for abies is higher than the OLS value
+
+# So, it can be concluded that the best models to represent the cover for species Acer and Abies are:
+# the OLS regression of Acer (final_acer_model) and the poisson regression of Abies (final_abies_poisson),
+# as the skewed data in the abies species makes it less accurate when using OLS regression.
 
 #' 4. (optional) Examine the behavior of the function stepAIC() using the exploratory 
 #' models developed above. This is a very simple and not very robust machine learning 
@@ -443,11 +483,6 @@ stepAIC(elev_interaction_mod_acersubset)
 # determined that removing elev:beers and beers will both improve the proposed model. 
 
 stepAIC(elev_interaction_mod_abiessubset)
-
-
-
-
-
 
 
 
