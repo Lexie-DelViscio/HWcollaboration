@@ -26,7 +26,7 @@ cols_to_select = c('elev', 'tci', 'streamdist', 'disturb', 'beers')
 env = aggregate(trees[ , cols_to_select], by = list(trees$plotID), 
                 function(x) x[1])
 names(env)[1] = 'plotID'
-# merge species and enviornmental matrices
+# merge species and environnmental matrices
 site_dat = merge(sp_cov, env, by='plotID')
 # subset species of interest
 abies = site_dat[ , c('ABIEFRA', cols_to_select)]
@@ -44,7 +44,7 @@ acer
 names(abies)
 names(acer)
 
-
+# boxplots for quantitative----
 ggplot(data = abies) + 
   geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
   labs(x = 'Disturbance', y = 'Cover', title = 'abies disturbance versus cover') 
@@ -64,7 +64,7 @@ quantile(acer$cover[acer$disturb == 'CORPLOG'])
 quantile(acer$cover[acer$disturb == 'SETTLE'])
 quantile(acer$cover[acer$disturb == 'LT-SEL'])
 
-#ABIES
+#ABIES original plots----
 plot(cover ~ elev, data = abies, xlab = 'Elevation (m)',
      ylab = 'Cover', main= 'abies elevation versus cover')
 
@@ -77,7 +77,7 @@ plot(cover ~ streamdist, data = abies, xlab = 'Stream Distance (m)',
 plot(cover ~ beers, data = abies, xlab = 'Beers',
      ylab = 'Cover', main= 'abies beers versus cover')
 
-#ACER
+#ACER original plots----
 plot(cover ~ elev, data = acer, xlab = 'Elevation (m)',
      ylab = 'Cover', main= 'acer elevation versus cover')
 
@@ -90,7 +90,7 @@ plot(cover ~ streamdist, data = acer, xlab = 'Stream Distance (m)',
 plot(cover ~ beers, data = acer, xlab = 'Beers',
      ylab = 'Cover', main= 'acer beers versus cover')
 
-# Intercept only model for Abers and Acies, cover as y variable
+# Intercept only model for Abers and Acies, cover as y variable----
 
 null_mod_abies = lm(cover ~ 1, data = abies)
 null_mod_acer = lm(cover ~ 1, data = acer)     
@@ -108,7 +108,7 @@ plot(cover ~ 1, data = acer)
 abline(null_mod_acer, lwd = 2)
 abline(h = mean(acer$cover), col = 'red', lty = 2, lwd = 2)
 
-# create single variable main effect models for each 
+# create single variable main effect models for each----
 # abies
 elev_mod_abies = lm(cover ~ elev, data = abies)
 tci_mod_abies = lm(cover ~ tci, data = abies)
@@ -123,7 +123,7 @@ streamdist_mod_acer = lm(cover ~ streamdist, data = acer)
 disturb_mod_acer = lm(cover ~ disturb, data = acer)
 beers_mod_acer = lm(cover ~ beers, data = acer)
 
-# abies single model main effect summaries 
+# abies single model main effect summaries ----
 summary(elev_mod_abies)
 Anova(elev_mod_abies, type= 3)
 
@@ -134,7 +134,7 @@ summary(beers_mod_abies)
 
 # significant p-values = elev, disturb (b/c of VIRGIN), streamdist
 
-# acer single model main effect summaries 
+# acer single model main effect summaries----
 summary(elev_mod_acer)
 summary(tci_mod_acer)
 summary(streamdist_mod_acer)
@@ -145,19 +145,16 @@ summary(beers_mod_acer)
 
 # beers has a significant effect on acers, but not abies
 
-# all main effects for both
+# all main effects for both----
 all_mod_abies = lm(cover ~ elev + tci + streamdist + disturb + beers, data = abies) 
 all_mod_acer = lm(cover ~ elev + tci + streamdist + disturb + beers, data = acer)
 
 summary(all_mod_abies)
 summary(all_mod_acer)
 
-# identifying outlers and modifying acer bc of them
-
-identify(acer$cover ~ acer$tci, n = 2)
-
+# identifying outlers and modifying acer bc of them----
 # outliers in this plot tci vs acer cover
-identify(acer$cover ~ acer$tci, n = 2)
+# used this code to identify the outliers... identify(acer$cover ~ acer$tci, n = 2)
 # remove tci outliers
 acer_subset = acer[-c(121, 318), ]
 plot(cover ~ tci, data= acer_subset, main="acer subset tci versus cover", xlab='tci', ylab= 'cover')
@@ -165,6 +162,7 @@ plot(cover ~ tci, data= acer_subset, main="acer subset tci versus cover", xlab='
 dim(acer)
 dim(acer_subset)
 
+# plots redone here for convenience... can take out in final probably----
 plot(cover ~ elev, data = acer, xlab = 'Elevation (m)',
      ylab = 'Cover', main= 'acer elevation versus cover')
 
@@ -185,14 +183,14 @@ dim(acer_subset)
 plot(cover ~ streamdist, data = acer_subset, xlab = 'Stream Distance (m)',
      ylab = 'Cover', main= 'acer stream distance versus cover subset')
 
-
+# new single variable models with the acersubset----
 elev_mod_acersubset = lm(cover ~ elev, data = acer_subset)
 tci_mod_acersubset = lm(cover ~ tci, data = acer_subset)
 streamdist_mod_acersubset = lm(cover ~ streamdist, data = acer_subset)
 disturb_mod_acersubset = lm(cover ~ disturb, data = acer_subset)
 beers_mod_acersubset = lm(cover ~ beers, data = acer_subset)
 
-# comparing the original to the subset without outliers 
+# comparing the original to the subset without outliers----
 summary(elev_mod_acer)
 summary(elev_mod_acersubset)
 summary(tci_mod_acer)
@@ -204,15 +202,14 @@ summary(disturb_mod_acersubset)
 summary(beers_mod_acer)
 summary(beers_mod_acersubset)
 
-# comparing the original main model with the subset main model
+# comparing the original main model with the subset main model----
 all_mod_acersubset = lm(cover ~ elev + tci + streamdist + disturb + beers, data = acer_subset)
 summary(all_mod_acersubset)
 summary(all_mod_acer)
 
 # removing the outliers did slightly improve the R-squared and adjusted R- squared, it also greatly increased the significance of tci( lowered the p value), so the subset without the outliers will be used from now on
 
-# model with elev, tci, and beers 
-
+# model with elev, tci, and beers----
 etb_mod_acersubset = lm(cover ~ elev + tci + beers , data = acer_subset)
 summary(etb_mod_acersubset)
 
@@ -224,7 +221,7 @@ AIC(etb_interaction_mod_acersubset)
 #[1] 3413.76
 AIC(etb_mod_acersubset)
 #[1] 3419.997
-## the above model just proved my suspicions on how important elevation was to the model
+## the above model just proved my suspicions on how important elevation was to the model, it will not be used over other models however because the r squared was lower
 
 #adding elevation interaction to main model-------------
 elev_interaction_mod_acersubset = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers + elev * streamdist + elev * disturb, data = acer_subset)
@@ -232,10 +229,7 @@ summary(elev_interaction_mod_acersubset)
 
 elev_interaction_mod_acersubset = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers + elev * streamdist + elev * disturb, data = acer_subset)
 
-# adding interaction to whole model
-# ask on tuesday how to include only VIRGIN disturb values in regression
-
-
+# adding interaction to whole model----
 full_mod_acersubset = update(all_mod_acersubset, ~ . + elev * disturb * tci * streamdist * beers)
 all_mod_acersubset = lm(cover ~ elev + tci + streamdist + disturb + beers, data = acer_subset)
 
@@ -264,7 +258,7 @@ summary(all_mod_abiessubset)
 summary(all_mod_abies)
 
 
-# abies with interaction
+# abies with interaction, full and elevation----
 full_mod_abiessubset = update(all_mod_abiessubset, ~ . + elev * disturb * tci * streamdist * beers)
 elev_interaction_mod_abiessubset = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers + elev * streamdist + elev * disturb, data = abies_subset)
 
@@ -272,13 +266,15 @@ summary(all_mod_abiessubset)
 summary(elev_interaction_mod_abiessubset)
 summary(full_mod_abiessubset) 
 
-# interaction had an even larger effect on the abies distributions 
+# interaction had an even larger effect on the abies distributions
 
+
+# Poisson calculation start----
 # assume all poisson calculations are done using the subsets with outliers removed
 summary(elev_interaction_mod_abiessubset)
 summary(elev_interaction_mod_acersubset)
 
-# poisson indivisual variables acer
+# poisson individual variables acer
 elev_mod_acer_poi = glm(cover ~ elev, data = acer_subset, family = "poisson")
 tci_mod_acer_poi = glm(cover ~ tci, data = acer_subset, family = "poisson")
 streamdist_mod_acer_poi = glm(cover ~ streamdist, data = acer_subset, family = "poisson")
@@ -306,7 +302,7 @@ summary(disturb_mod_acer_poi)
 summary(beers_mod_acer_poi)
 
 
-# poisson with elevation interaction only
+# poisson with elevation interaction only----
 abies_poi = glm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers + elev * streamdist + elev * disturb, data = abies_subset, 
                 family='poisson')
 acer_poi = glm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers + elev * streamdist + elev * disturb, data = acer_subset, 
@@ -322,7 +318,7 @@ pseudo_r2 = function(glm_mod) {
 pseudo_r2(abies_poi)
 pseudo_r2(acer_poi)
 
-# comparing poisson with equivalent OLS
+# comparing poisson with equivalent OLS----
 summary(abies_poi)
 summary(elev_interaction_mod_abiessubset)
 pseudo_r2(abies_poi)
@@ -338,15 +334,7 @@ Anova(acer_poi, type=3)
 Anova(elev_interaction_mod_acersubset, type=3)
 
 # poisson might be better at estimating abies, but not acer based on the pseudo
-# r squared values, but we are confused why none of the variables in the summary description were significant
-
-
-
-### top questions... 
-# is it possible to include only a specific type of disturbance in the model (ie. Virgin)
-# with the pseudo r^2 of the abies poisson distribution being large, is this a good model? although the summary output would disagree
-# 
-# determining when OLS assumption violations from the model 
+# r squared values
 
 reduced <- stepAIC(full_mod_abiessubset)
 
@@ -356,7 +344,7 @@ reduced <- stepAIC(full_mod_abiessubset)
 # change order of levels to choose which is the intercept
 # use contrast to visualize level code
 
-
+# checking plots of the elevation interaction model and removing more outliers---
 par(mfrow = c(2,2))
 plot(elev_interaction_mod_abiessubset)
 # removed a few more outliers
@@ -365,16 +353,19 @@ plot(elev_interaction_mod_abiessubset)
 plot(elev_interaction_mod_acersubset)
 # take out 56 , 187 from acer
 
-# final models to use: elev_interaction_mod_acersubset, elev_interaction_mod_abiessubset
+# semifinal models to use:----
+# elev_interaction_mod_acersubset, elev_interaction_mod_abiessubset
 # abies_poi (only includes elevation interaction)
 # acer_poi (only includes elevation interaction)
 
+# use stepAIC----
+# to check the model and decide if any variables can be removed----
 stepAIC(elev_interaction_mod_abiessubset)
 # shows that it may make sense to remove beers from the abies model
 stepAIC(elev_interaction_mod_acersubset)
 # shows that elevation and stream, distance interaction may not be neccesarry
 
-# retry with those taken out
+# retry with those taken out----
 abies_test_mod = lm(cover ~ elev + tci + streamdist + disturb + elev * tci + elev * streamdist + elev * disturb, data = abies_subset)
 acer_test_mod = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers +  elev * disturb, data = acer_subset)
 summary(abies_test_mod)
@@ -402,6 +393,7 @@ plot(abies_test_mod)
 # the AIC's also show this was helpful, so we can rename the test model as our
 # final model to present... keep in mind these final models are using the subseted data without outliers
 
+# final models----
 par(mfrow = c(2,2))
 
 final_abies_model <- abies_test_mod
@@ -409,10 +401,11 @@ final_acer_model <- acer_test_mod
 final_acer_poisson <- acer_poi
 final_abies_poisson <- abies_poi
 
+# OLS versus poisson for each species----
 # when comapring these plots it confirms suspicion that the Poisson distribution is a better fit
 # for the abies species, and this is most likely due to the highly skewed elevation data
 # the points, especially in scale location and residuals- fitted are still pretty concentrated,
-# but are better distributed evenly accross the lines.
+# but are better distributed evenly across the lines.
 plot(final_abies_model)
 plot(final_abies_poisson)
 
@@ -424,6 +417,7 @@ plot(final_acer_poisson)
 
 pseudo_r2(final_acer_poisson)
 pseudo_r2(final_abies_poisson)
+
 # Compare these to the output adjusted r squared from normal 
 summary(final_acer_model)
 summary(final_abies_model)
@@ -431,6 +425,6 @@ summary(final_abies_model)
 # this further proves that OLS is better fitted for the Acer species as the pesudo r^2 value
 # is less than the normal r^2 value, whereas the pseudo R^2 value for abies is higher than the OLS value
 
-# 
+
 
 
