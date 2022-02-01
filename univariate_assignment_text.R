@@ -1,4 +1,5 @@
-## R Markdown
+
+
 trees <- read.csv('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/data/treedata_subset.csv')
 trees
 # 1. Carry out an exploratory analysis using the tree dataset. Metadata for the tree study can be found here. Specifically, I would like you to develop and compare models for species cover for a habitat generalist Acer rubrum (Red maple) and a habitat specialist Abies fraseri (Frasier fir). Because this dataset includes both continuous and discrete explanatory variables use the function Anova in the packages car as such
@@ -361,9 +362,9 @@ plot(elev_interaction_mod_acersubset)
 # use stepAIC----
 # to check the model and decide if any variables can be removed----
 stepAIC(elev_interaction_mod_abiessubset)
-# shows that it may make sense to remove beers from the abies model
+# shows that it may make sense to remove elev:beers from the abies model
 stepAIC(elev_interaction_mod_acersubset)
-# shows that elevation and stream, distance interaction may not be neccesarry
+# shows that elevation and stream distance interaction may not be neccesarry
 
 # retry with those taken out----
 abies_test_mod = lm(cover ~ elev + tci + streamdist + disturb + elev * tci + elev * streamdist + elev * disturb, data = abies_subset)
@@ -424,6 +425,28 @@ summary(final_abies_model)
 
 # this further proves that OLS is better fitted for the Acer species as the pesudo r^2 value
 # is less than the normal r^2 value, whereas the pseudo R^2 value for abies is higher than the OLS value
+
+#' 4. (optional) Examine the behavior of the function stepAIC() using the exploratory 
+#' models developed above. This is a very simple and not very robust machine learning 
+#' stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
+
+# repeat of the stepAIC used in the model selection above to answer question four.
+stepAIC(elev_interaction_mod_acersubset)
+
+# using the output from the stepAIC(elev_interaction_mod_acersubset) it can be used to describe the functionality of stepAIC().
+# when used the stepwise function takes a backward approach by first looking at all of the variables included in a model taken in the function.
+# By running through the function the first time it is identified that the overall AIC is 1310.9, however after the second output when the function
+# is modified it is identified to have an AIC of 1309.36. It can be seen that this is equivalent to the AIC Value corresponding to the elev:streamdist 
+# ,it can be concluded that the stepAIC function identifies the AIC value of the model IF the variable it is describing is dropped. From this output it 
+# can be further concluded that these are the variables which can be removed to to improve the model in a simple way.So, using the Acer subset, the variables 
+# elev:streamdist is the onlt variables that should be considered to be removed. However, in the stepAIC(elev_interaction_mod_abiessubset), shown below, it can be 
+# determined that removing elev:beers and beers will both improve the proposed model. 
+
+stepAIC(elev_interaction_mod_abiessubset)
+
+
+
+
 
 
 
