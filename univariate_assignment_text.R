@@ -402,9 +402,35 @@ plot(abies_test_mod)
 # the AIC's also show this was helpful, so we can rename the test model as our
 # final model to present... keep in mind these final models are using the subseted data without outliers
 
+par(mfrow = c(2,2))
+
 final_abies_model <- abies_test_mod
 final_acer_model <- acer_test_mod
-final_acer_poisson
+final_acer_poisson <- acer_poi
+final_abies_poisson <- abies_poi
+
+# when comapring these plots it confirms suspicion that the Poisson distribution is a better fit
+# for the abies species, and this is most likely due to the highly skewed elevation data
+# the points, especially in scale location and residuals- fitted are still pretty concentrated,
+# but are better distributed evenly accross the lines.
+plot(final_abies_model)
+plot(final_abies_poisson)
+
+# when comparing these plots it confirms suspicion that the OLS distribution is a better fit
+# for the acer species, the residulas vs leverage graph and scale- location are much more
+# evenly distributed along the line during the OLS regression
+plot(final_acer_model)
+plot(final_acer_poisson)
+
+pseudo_r2(final_acer_poisson)
+pseudo_r2(final_abies_poisson)
+# Compare these to the output adjusted r squared from normal 
+summary(final_acer_model)
+summary(final_abies_model)
+
+# this further proves that OLS is better fitted for the Acer species as the pesudo r^2 value
+# is less than the normal r^2 value, whereas the oseudo R^2 value for abies is higher than the OLS value
+
 
 
 
