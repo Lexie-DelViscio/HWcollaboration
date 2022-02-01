@@ -417,7 +417,7 @@ plot(final_abies_model)
 plot(final_abies_poisson)
 
 # when comparing these plots it confirms suspicion that the OLS distribution is a better fit
-# for the acer species, the residulas vs leverage graph and scale- location are much more
+# for the acer species, the residuals vs leverage graph and scale- location are much more
 # evenly distributed along the line during the OLS regression
 plot(final_acer_model)
 plot(final_acer_poisson)
@@ -429,9 +429,8 @@ summary(final_acer_model)
 summary(final_abies_model)
 
 # this further proves that OLS is better fitted for the Acer species as the pesudo r^2 value
-# is less than the normal r^2 value, whereas the oseudo R^2 value for abies is higher than the OLS value
+# is less than the normal r^2 value, whereas the pseudo R^2 value for abies is higher than the OLS value
 
-
-
+# 
 
 
