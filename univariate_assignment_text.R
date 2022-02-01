@@ -12,7 +12,7 @@ library(car)
 
 # how well does the exploratory model appear to explain cover?
 # which explanatory variables are the most important?
-# do model diagnostics indicate any problems with violations of OLS assumptions?
+# do model diagnostics indicate any problems with violations of OLS assumptions?... answered later in this document.
 # are you able to explain variance in one species better than another, why might this be the case?
 # Prior to addressing the above questions you will want to restructure and subset the data using the # # following R code:
 
@@ -27,7 +27,7 @@ cols_to_select = c('elev', 'tci', 'streamdist', 'disturb', 'beers')
 env = aggregate(trees[ , cols_to_select], by = list(trees$plotID), 
                 function(x) x[1])
 names(env)[1] = 'plotID'
-# merge species and environnmental matrices
+# merge species and environmental matrices
 site_dat = merge(sp_cov, env, by='plotID')
 # subset species of interest
 abies = site_dat[ , c('ABIEFRA', cols_to_select)]
@@ -35,11 +35,13 @@ acer  = site_dat[ , c('ACERRUB', cols_to_select)]
 names(abies)[1] = 'cover'
 names(acer)[1] = 'cover'
 
+# loading more libraries
 library(ggplot2)
 library(gridExtra)
 library(scatterplot3d)
 library(MASS)
 
+# viewing the data
 abies
 acer
 names(abies)
@@ -91,8 +93,7 @@ plot(cover ~ streamdist, data = acer, xlab = 'Stream Distance (m)',
 plot(cover ~ beers, data = acer, xlab = 'Beers',
      ylab = 'Cover', main= 'acer beers versus cover')
 
-# Intercept only model for Abers and Acies, cover as y variable----
-
+# Intercept only models for Abies and Acer, cover as y variable----
 null_mod_abies = lm(cover ~ 1, data = abies)
 null_mod_acer = lm(cover ~ 1, data = acer)     
 null_mod_abies
@@ -127,7 +128,6 @@ beers_mod_acer = lm(cover ~ beers, data = acer)
 # abies single model main effect summaries ----
 summary(elev_mod_abies)
 Anova(elev_mod_abies, type= 3)
-
 summary(tci_mod_abies)
 summary(streamdist_mod_abies)
 summary(disturb_mod_abies)
@@ -144,7 +144,7 @@ summary(beers_mod_acer)
 
 # significant p-values = all EXCEPT tci
 
-# beers has a significant effect on acers, but not abies
+# beers has a significant effect on acers, but not abies in these models
 
 # all main effects for both----
 all_mod_abies = lm(cover ~ elev + tci + streamdist + disturb + beers, data = abies) 
@@ -153,7 +153,7 @@ all_mod_acer = lm(cover ~ elev + tci + streamdist + disturb + beers, data = acer
 summary(all_mod_abies)
 summary(all_mod_acer)
 
-# identifying outlers and modifying acer bc of them----
+# identifying outlers and modifying acer because of them----
 # outliers in this plot tci vs acer cover
 # used this code to identify the outliers... identify(acer$cover ~ acer$tci, n = 2)
 # remove tci outliers
@@ -177,7 +177,7 @@ plot(cover ~ beers, data = acer, xlab = 'Beers',
      ylab = 'Cover', main= 'acer beers versus cover')
 
 # remove possible stream distance acer outlier
-identify(acer$cover ~ acer$streamdist, n=1)
+# identify(acer$cover ~ acer$streamdist, n=1)
 acer_subset = acer[-c(121, 318, 297,56,187), ]
 dim(acer_subset)
 
