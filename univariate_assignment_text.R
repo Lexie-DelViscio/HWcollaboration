@@ -365,6 +365,47 @@ plot(elev_interaction_mod_abiessubset)
 plot(elev_interaction_mod_acersubset)
 # take out 56 , 187 from acer
 
+# final models to use: elev_interaction_mod_acersubset, elev_interaction_mod_abiessubset
+# abies_poi (only includes elevation interaction)
+# acer_poi (only includes elevation interaction)
+
+stepAIC(elev_interaction_mod_abiessubset)
+# shows that it may make sense to remove beers from the abies model
+stepAIC(elev_interaction_mod_acersubset)
+# shows that elevation and stream, distance interaction may not be neccesarry
+
+# retry with those taken out
+abies_test_mod = lm(cover ~ elev + tci + streamdist + disturb + elev * tci + elev * streamdist + elev * disturb, data = abies_subset)
+acer_test_mod = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers +  elev * disturb, data = acer_subset)
+summary(abies_test_mod)
+summary(acer_test_mod)
+abies_test_poi = glm(cover ~ elev + tci + streamdist + disturb + elev * tci + elev * streamdist + elev * disturb, data = abies_subset, family = "poisson")
+acer_test_poi = glm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers +  elev * disturb, data = acer_subset, family = "poisson")
+summary(abies_test_poi)
+summary(acer_test_poi)
+summary(elev_interaction_mod_abiessubset)
+
+# the adjusted r squares show this did help
+AIC(abies_test_mod)
+AIC(abies_test_poi)
+AIC(acer_test_mod)
+AIC(acer_test_poi)
+
+AIC(elev_interaction_mod_acersubset)
+AIC(elev_interaction_mod_abiessubset)
+AIC(acer_poi)
+AIC(abies_poi)
+
+plot(acer_test_mod)
+plot(abies_test_mod)
+
+# the AIC's also show this was helpful, so we can rename the test model as our
+# final model to present... keep in mind these final models are using the subseted data without outliers
+
+final_abies_model <- abies_test_mod
+final_acer_model <- acer_test_mod
+final_acer_poisson
+
 
 
 
