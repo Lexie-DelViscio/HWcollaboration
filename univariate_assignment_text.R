@@ -158,7 +158,6 @@ identify(acer$cover ~ acer$tci, n = 2)
 
 # outliers in this plot tci vs acer cover
 identify(acer$cover ~ acer$tci, n = 2)
-[1] 121 318
 # remove tci outliers
 acer_subset = acer[-c(121, 318), ]
 plot(cover ~ tci, data= acer_subset, main="acer subset tci versus cover", xlab='tci', ylab= 'cover')
@@ -328,6 +327,7 @@ pseudo_r2(abies_poi)
 summary(acer_poi)
 summary(elev_interaction_mod_acersubset)
 pseudo_r2(acer_poi)
+
 # comparing with anova
 Anova(abies_poi, type=3)
 Anova(elev_interaction_mod_abiessubset, type=3)
@@ -336,3 +336,10 @@ Anova(elev_interaction_mod_acersubset, type=3)
 
 # poisson might be better at estimating abies, but not acer based on the pseudo
 # r squared values, but we are confused why none of the variables in the summary description were significant
+
+
+
+### top questions... is it possible to include only a specific type of disturbance in the model (ie. Virgin)
+### with the pseudo r^2 of the abies poisson distribution being large, is this a good model? although the summary output would disagree
+
+
