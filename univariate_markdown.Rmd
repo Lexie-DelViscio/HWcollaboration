@@ -1,22 +1,38 @@
+---
+title: "univariate_collab.rmd"
+author: "Lexie DelViscio"
+date: "2/1/2022"
+output: html_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
+## R Markdown
+
+```{r}
 trees <- read.csv('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/data/treedata_subset.csv')
 trees
-# 1. Carry out an exploratory analysis using the tree dataset. Metadata for the tree study can be found here. Specifically, I would like you to develop and compare models for species cover for a habitat generalist Acer rubrum (Red maple) and a habitat specialist Abies fraseri (Frasier fir). Because this dataset includes both continuous and discrete explanatory variables use the function Anova in the packages car as such
+```
+
+ 1. Carry out an exploratory analysis using the tree dataset. Metadata for the tree study can be found here. Specifically, I would like you to develop and compare models for species cover for a habitat generalist Acer rubrum (Red maple) and a habitat specialist Abies fraseri (Frasier fir). Because this dataset includes both continuous and discrete explanatory variables use the function Anova in the packages car as such
+```{r}
 library(car)
-# Anova(my_mod, type=3)
-# Compare the p-values you observe using the function Anova to those generated using summary.
+```
+Anova(my_mod, type=3)
+Compare the p-values you observe using the function Anova to those generated using summary.
 
-# For each species address the following additional questions:
+For each species address the following additional questions:
+How well does the exploratory model appear to explain cover?
+which explanatory variables are the most important?
+do model diagnostics indicate any problems with violations of OLS assumptions?... answered later in this document.
+are you able to explain variance in one species better than another, why might this be the case?
 
-# how well does the exploratory model appear to explain cover?
-# which explanatory variables are the most important?
-# do model diagnostics indicate any problems with violations of OLS assumptions?... answered later in this document.
-# are you able to explain variance in one species better than another, why might this be the case?
-# Prior to addressing the above questions you will want to restructure and subset the data using the # # following R code:
-
-# we wish to model species cover across all sampled plots
-# create site x sp matrix for two species 
+Prior to addressing the above questions you will want to restructure and subset the data using the # # following R code:
+wish to model species cover across all sampled plots
+create site x sp matrix for two species 
+```{r}
 sp_cov = with(trees, tapply(cover, list(plotID, spcode), 
                             function(x) round(mean(x))))
 sp_cov = ifelse(is.na(sp_cov), 0, sp_cov)
@@ -33,40 +49,48 @@ abies = site_dat[ , c('ABIEFRA', cols_to_select)]
 acer  = site_dat[ , c('ACERRUB', cols_to_select)]
 names(abies)[1] = 'cover'
 names(acer)[1] = 'cover'
+```
 
-# loading more libraries
+loading more libraries
+```{r}
 library(ggplot2)
 library(gridExtra)
 library(scatterplot3d)
 library(MASS)
+```
 
-# viewing the data
+viewing the data
+```{r}
 abies
 acer
 names(abies)
 names(acer)
+```
 
-# boxplots for quantitative----
+boxplots for quantitative----
+and their quantiles
+```{r}
 ggplot(data = abies) + 
   geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
   labs(x = 'Disturbance', y = 'Cover', title = 'abies disturbance versus cover') 
-
 ggplot(data = acer) + 
   geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
   labs(x = 'Disturbance', y = 'Cover', title = 'acer disturbance versus cover') 
 
-
+# abies quantiles 
 quantile(abies$cover[abies$disturb == 'VIRGIN'])
 quantile(abies$cover[abies$disturb == 'CORPLOG'])
 quantile(abies$cover[abies$disturb == 'SETTLE'])
 quantile(abies$cover[abies$disturb == 'LT-SEL'])
-
+# acer quantiles 
 quantile(acer$cover[acer$disturb == 'VIRGIN'])
 quantile(acer$cover[acer$disturb == 'CORPLOG'])
 quantile(acer$cover[acer$disturb == 'SETTLE'])
 quantile(acer$cover[acer$disturb == 'LT-SEL'])
+```
 
-#ABIES original plots----
+ABIES original plots----
+```{r}
 plot(cover ~ elev, data = abies, xlab = 'Elevation (m)',
      ylab = 'Cover', main= 'abies elevation versus cover')
 
@@ -78,8 +102,10 @@ plot(cover ~ streamdist, data = abies, xlab = 'Stream Distance (m)',
 
 plot(cover ~ beers, data = abies, xlab = 'Beers',
      ylab = 'Cover', main= 'abies beers versus cover')
+```
 
-#ACER original plots----
+ACER original plots----
+```{r}
 plot(cover ~ elev, data = acer, xlab = 'Elevation (m)',
      ylab = 'Cover', main= 'acer elevation versus cover')
 
@@ -91,8 +117,10 @@ plot(cover ~ streamdist, data = acer, xlab = 'Stream Distance (m)',
 
 plot(cover ~ beers, data = acer, xlab = 'Beers',
      ylab = 'Cover', main= 'acer beers versus cover')
+```
 
-# Intercept only models for Abies and Acer, cover as y variable----
+Intercept only models for Abies and Acer, cover as y variable----
+```{r}
 null_mod_abies = lm(cover ~ 1, data = abies)
 null_mod_acer = lm(cover ~ 1, data = acer)     
 null_mod_abies
@@ -108,106 +136,116 @@ abline(h = mean(abies$cover), col = 'red', lty = 2, lwd = 2)
 plot(cover ~ 1, data = acer)
 abline(null_mod_acer, lwd = 2)
 abline(h = mean(acer$cover), col = 'red', lty = 2, lwd = 2)
+```
 
-# create single variable main effect models for each----
+create single variable main effect models for each species and variable----
+```{r}
 # abies
 elev_mod_abies = lm(cover ~ elev, data = abies)
 tci_mod_abies = lm(cover ~ tci, data = abies)
 streamdist_mod_abies = lm(cover ~ streamdist, data = abies)
 disturb_mod_abies = lm(cover ~ disturb, data = abies)
 beers_mod_abies = lm(cover ~ beers, data = abies)
-
 # acer 
 elev_mod_acer = lm(cover ~ elev, data = acer)
 tci_mod_acer = lm(cover ~ tci, data = acer)
 streamdist_mod_acer = lm(cover ~ streamdist, data = acer)
 disturb_mod_acer = lm(cover ~ disturb, data = acer)
 beers_mod_acer = lm(cover ~ beers, data = acer)
+```
 
-# abies single model main effect summaries ----
+abies single model main effect summaries----
+```{r}
 summary(elev_mod_abies)
 Anova(elev_mod_abies, type= 3)
 summary(tci_mod_abies)
 summary(streamdist_mod_abies)
 summary(disturb_mod_abies)
 summary(beers_mod_abies)
-
 # significant p-values = elev, disturb (b/c of VIRGIN), streamdist
+```
 
-# acer single model main effect summaries----
+acer single model main effect summaries----
+```{r}
 summary(elev_mod_acer)
 summary(tci_mod_acer)
 summary(streamdist_mod_acer)
 summary(disturb_mod_acer)
 summary(beers_mod_acer)
-
 # significant p-values = all EXCEPT tci
-
 # beers has a significant effect on acers, but not abies in these models
+```
 
-# all main effects for both----
+all main effects for both----
+```{r}
 all_mod_abies = lm(cover ~ elev + tci + streamdist + disturb + beers, data = abies) 
 all_mod_acer = lm(cover ~ elev + tci + streamdist + disturb + beers, data = acer)
 
 summary(all_mod_abies)
 summary(all_mod_acer)
+```
 
-# identifying outlers and modifying acer because of them----
-# outliers in this plot tci vs acer cover
-# used this code to identify the outliers... identify(acer$cover ~ acer$tci, n = 2)
-# remove tci outliers
+identifying outlers and modifying acer because of them----
+This code was used to identify the outliers... identify(acer$cover ~ acer$tci, n = 2)
+Remove tci outliers
+```{r}
+plot(cover ~ tci, data = acer, xlab = 'Topographic Coverage Index',
+     ylab = 'Cover', main= 'acer tci versus cover')
 acer_subset = acer[-c(121, 318), ]
 plot(cover ~ tci, data= acer_subset, main="acer subset tci versus cover", xlab='tci', ylab= 'cover')
 
 dim(acer)
 dim(acer_subset)
+```
 
-# plots redone here for convenience... can take out in final probably----
-plot(cover ~ elev, data = acer, xlab = 'Elevation (m)',
-     ylab = 'Cover', main= 'acer elevation versus cover')
-
-plot(cover ~ tci, data = acer, xlab = 'Topographic Coverage Index',
-     ylab = 'Cover', main= 'acer tci versus cover')
+plots redone here for convenience... can take out in final probably----
+```{r}
 
 plot(cover ~ streamdist, data = acer, xlab = 'Stream Distance (m)',
      ylab = 'Cover', main= 'acer stream distance versus cover')
-
-plot(cover ~ beers, data = acer, xlab = 'Beers',
-     ylab = 'Cover', main= 'acer beers versus cover')
-
-# remove possible stream distance acer outlier
-# identify(acer$cover ~ acer$streamdist, n=1)
 acer_subset = acer[-c(121, 318, 297,56,187), ]
 dim(acer_subset)
 
 plot(cover ~ streamdist, data = acer_subset, xlab = 'Stream Distance (m)',
      ylab = 'Cover', main= 'acer stream distance versus cover subset')
+```
 
-# new single variable models with the acersubset----
+new single variable models with the acersubset----
+```{r}
 elev_mod_acersubset = lm(cover ~ elev, data = acer_subset)
 tci_mod_acersubset = lm(cover ~ tci, data = acer_subset)
 streamdist_mod_acersubset = lm(cover ~ streamdist, data = acer_subset)
 disturb_mod_acersubset = lm(cover ~ disturb, data = acer_subset)
 beers_mod_acersubset = lm(cover ~ beers, data = acer_subset)
+```
 
-# comparing the original to the subset without outliers----
+# comparing the original summaries to the subset without outliers----
+```{r}
+# elevation
 summary(elev_mod_acer)
 summary(elev_mod_acersubset)
+# topographic coverage index
 summary(tci_mod_acer)
 summary(tci_mod_acersubset)
+# stream distance
 summary(streamdist_mod_acer)
 summary(streamdist_mod_acersubset)
+# disturbance
 summary(disturb_mod_acer)
 summary(disturb_mod_acersubset)
+#beers index
 summary(beers_mod_acer)
 summary(beers_mod_acersubset)
+```
 
-# comparing the original main model with the subset main model----
+comparing the original main model with the subset main model for acer----
+```{r}
 all_mod_acersubset = lm(cover ~ elev + tci + streamdist + disturb + beers, data = acer_subset)
 summary(all_mod_acersubset)
 summary(all_mod_acer)
 
 # removing the outliers did slightly improve the R-squared and adjusted R- squared, it also greatly increased the significance of tci( lowered the p value), so the subset without the outliers will be used from now on
+```
 
 # model with elev, tci, and beers----
 etb_mod_acersubset = lm(cover ~ elev + tci + beers , data = acer_subset)
@@ -482,6 +520,3 @@ stepAIC(elev_interaction_mod_acersubset)
 # determined that removing elev:beers and beers will both improve the proposed model. 
 
 stepAIC(elev_interaction_mod_abiessubset)
-
-
-
