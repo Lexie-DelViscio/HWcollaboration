@@ -24,10 +24,6 @@ Anova(my_mod, type=3)
 Compare the p-values you observe using the function Anova to those generated using summary.
 
 For each species address the following additional questions:
-How well does the exploratory model appear to explain cover?
-which explanatory variables are the most important?
-do model diagnostics indicate any problems with violations of OLS assumptions?... answered later in this document.
-are you able to explain variance in one species better than another, why might this be the case?
 
 Prior to addressing the above questions you will want to restructure and subset the data using the # # following R code:
 wish to model species cover across all sampled plots
@@ -449,6 +445,21 @@ final_acer_poisson <- acer_test_poi
 final_abies_poisson <- abies_test_poi
 ```
 
+Question 1)
+For each species address the following additional questions:
+
+How well does the exploratory model appear to explain cover?
+  The OLS exploratory model explains cover well according to Acer rubrum species and less so for the Abies fraseri species due to slightly skewed distribution. However, the R^2 values of the Abies fraseri species still tended to be higher than the Acer rubrum species, most likely because the Acer rubrum is a much less habitat specialized species, it is more of a generalist and thus less likely to explain using variables.
+
+Which explanatory variables are the most important?
+   The most important explanatory value seems to be elevation in this data set, also used as a determinant of temperature/climate and thus having the most significant effect on cover of each species. Disturbance also plays an important role as an explanatory variable for distribution data. Especially when it comes to the abies species, elevation is extremely important as they do not survive in warm temperatures. 
+
+Do model diagnostics indicate any problems with violations of OLS assumptions?
+  answered later in this document.
+
+Are you able to explain variance in one species better than another, why might this be the case?
+  Variance can be better explained in the Acer species. This might be the case because of the species of tree - these trees are much more evenly distributed and common throughout geographic locations in comparison to Abies which are more limited by what areas they proliferate within and can grow in. Abies also have more history of logging as a form of disturbance which causes this variable to have a more skewed effect on the distribution as well rather than an even variance. The Acer species on the other hand is much more normally distributed. 
+
 Questions number 2)
 Compare your qualatative assessment of which variables were most important in each model. Does it appear that changing the error distribution changed the results much? In what ways?
 and 
@@ -500,6 +511,11 @@ summary(final_abies_model)
 This further proves that OLS is better fitted for the Acer species as the pseudo R^2 value is less than the normal r^2 value, whereas the pseudo R^2 value for abies poisson distribution is higher than the OLS value
 
 So, it can be concluded that the best models to represent the cover for species Acer and Abies are: the OLS regression of Acer (final_acer_model) and the poisson regression of Abies (final_abies_poisson), as the skewed elevation data in the abies species makes it less accurate when using OLS regression.
+
+
+3) Provide a plain English summary (i.e., no statistics) of what you have found and what conclusions we can take away from your analysis?
+
+This analysis found that with OLS modeling, the Abies fraseri species distribution were significantly affected by both elevation and disturbance while the Acer rubrum species distribution were significantly affected by all of the explanatory variables. Poisson modeling was found to model the Abies Fraseri species best while OLS models yielded the most consistent and highest R-squared values specifically for elevation and disturbance in the Acer Rubrum  species, especially when outliers are removed for uniformity of data.  The interaction effect proves significance specifically of the explanatory variable ‘elevation’ in the Abies fraseri species - due to these trees being located primarily in higher elevation areas and distribution variable being skewed due to this factor. Including a factor of elevation also increases the performance of the Acer Rubrum species models, however not to the extent it does of the abies for reasons previously mentioned. 
 
 4. (optional) Examine the behavior of the function stepAIC() using the exploratory models developed above. This is a very simple and not very robust machine learning stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
 
