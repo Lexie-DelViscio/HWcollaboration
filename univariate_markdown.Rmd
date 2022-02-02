@@ -1,6 +1,6 @@
 ---
 title: "univariate_collab.rmd"
-author: "Lexie DelViscio"
+author: "Lexie DelViscio and Frannie Dellacqua"
 date: "2/1/2022"
 output: html_document
 ---
@@ -392,131 +392,123 @@ plot(elev_interaction_mod_abiessubset)
 plot(elev_interaction_mod_acersubset)
 # take out 56 , 187 from acer
 ```
-# semifinal models to use:----
-# elev_interaction_mod_acersubset, elev_interaction_mod_abiessubset
-# abies_poi (only includes elevation interaction)
-# acer_poi (only includes elevation interaction)
 
-# use stepAIC----
-# to check the model and decide if any variables can be removed----
+# semifinal models to use:
+elev_interaction_mod_acersubset
+elev_interaction_mod_abiessubset
+abies_poi (only includes elevation interaction)
+acer_poi (only includes elevation interaction)
+
+Next, using stepAIC to check these semifinal models and decide if any variables can be removed----
+```{r}
 stepAIC(elev_interaction_mod_abiessubset)
 # shows that it may make sense to remove elev:beers from the abies model
 stepAIC(elev_interaction_mod_acersubset)
 # shows that elevation and stream distance interaction may not be neccesarry
+```
 
-# retry with those taken out----
+remodel with those taken out, models named as species_test_mod----
+```{r}
 #OLS
 abies_test_mod = lm(cover ~ elev + tci + streamdist + disturb + elev * tci + elev * streamdist + elev * disturb, data = abies_subset)
+
 acer_test_mod = lm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers +  elev * disturb, data = acer_subset)
 summary(abies_test_mod)
 summary(acer_test_mod)
+
 #POISSON
 abies_test_poi = glm(cover ~ elev + tci + streamdist + disturb + elev * tci + elev * streamdist + elev * disturb, data = abies_subset, family = "poisson")
+
 acer_test_poi = glm(cover ~ elev + tci + streamdist + disturb + beers + elev * tci + elev * beers +  elev * disturb, data = acer_subset, family = "poisson")
+
 summary(abies_test_poi)
 summary(acer_test_poi)
-summary(elev_interaction_mod_abiessubset)
 
 # the adjusted r squares show this did help
-# after stepAIC abies
+# after stepAIC abies AIC
 AIC(abies_test_mod)
 AIC(abies_test_poi)
-# original abies
+# original abies AIC
 AIC(elev_interaction_mod_abiessubset)
 AIC(abies_poi)
-# after stepAIC acer
+# after stepAIC acer AIC
 AIC(acer_test_mod)
 AIC(acer_test_poi)
-# original acer
+# original acer AIC
 AIC(elev_interaction_mod_acersubset)
 AIC(acer_poi)
+```
+The AIC's also show this was helpful, so we can rename the test models as our
+final models to present... keeping in mind these final models are all using the subsetted data without outliers the name was just shortened final_abiessubset_model to final_abies_model and likewise with acer for easier access and readability. 
 
-# the AIC's also show this was helpful, so we can rename the test models as our
-# final models to present... keep in mind these final models are all using the subsetted data without outliers
-# the name was just shortened for easier access and readability. 
-
-# final models----
+final models----
+```{r}
 final_abies_model <- abies_test_mod
 final_acer_model <- acer_test_mod
 final_acer_poisson <- acer_test_poi
 final_abies_poisson <- abies_test_poi
+```
 
-# 2) and----
-# 1) part: "do model diagnostics indicate any problems with violations of OLS assumptions?"----
-# OLS versus poisson for each species
-# new model to prove this point with the abies species.
+Questions number 2)
+Compare your qualatative assessment of which variables were most important in each model. Does it appear that changing the error distribution changed the results much? In what ways?
+and 
+number 1) part "do model diagnostics indicate any problems with violations of OLS assumptions?"----
+
+# new model to prove number one with the abies species.
+```{r}
 abies_elev_poi = glm(cover ~ elev, data= abies_subset, family="poisson")
 # also using elev_interaction_mod_abiessubset = lm(cover ~ elev, data= abies_subset)
+```
 
-# When comparing these plots it confirms suspicion that the Poisson distribution is a better fit
-# for the abies species, and this is most likely due to the highly skewed elevation data. Since it can
-# be seen in the original (cover ~ elevation) plot for abies, the data is highly concentrated around 0 
-# coverage until an elevation of 1500, where the trend turns visually turns into a positive correlation between 
-# elevation and abies cover. 
-
+When comparing the plots below it will confirm suspicions from the previously analyzed data that the Poisson distribution is a better fit for the abies species, and this is most likely due to the highly skewed elevation data. Since it can be seen in the original (cover ~ elevation) plot for abies, that the data is highly concentrated around 0 coverage until an elevation of 1500, where the trend turns visually turns into a positive correlation between elevation and abies cover. 
+```{r}
 par(mfrow=c(1,1))
 plot(cover ~ elev, data= abies_subset)
+```
 
-# This can be explained by the fact that the abies species are fraisir firs and they 
-# are highly selective on their habitat condition, they must be further north, or high in elevation, in order to 
-# grow. So, when the model lm(cover ~ elev, data= abies[_subset]), or any other model including elevation as a 
-# variable describing cover will not be taking into account this highly skewed data as it is working under a normal 
-# distribution. This can be seen with the hotpink link on the graph below. This is the residual line for cover ~ elev
-# for the abies species under OLS conditions. 
-
+This can be explained by the fact that the abies species are fraisir firs and they are highly selective on their habitat condition, they must be further north, or high in elevation, in order to grow. So, when the model lm(cover ~ elev, data= abies[_subset]), or any other model including elevation as a variable describing cover will not be taking into account this highly skewed data as it is working under a normal distribution. This can be seen with the hotpink link on the graph below. This is the residual line for cover ~ elev for the abies species under OLS conditions. 
+```{r}
 plot(cover ~ elev, data= abies_subset)
 abline(elev_interaction_mod_abiessubset, col="hot pink")
+```
 
-# The line trends downwards, which we know to be false as the data trend
-# actually increases as elevation increases, after a specific point. However, it can be seen through the blue line on the 
-# graph that when the model glm(cover ~ elev, data= abies[_subset], family="poisson") is plotted the regression line is 
-# much more in line with what we would expect to predict the data. 
-
+The line trends downwards, which we know to be false as the data trend actually increases as elevation increases, after a specific point. However, it can be seen through the blue line on the  graph that when the model glm(cover ~ elev, data= abies[_subset], family="poisson") is plotted the regression line is much more in line with what we would expect to predict the data. 
+```{r}
 plot(cover ~ elev, data= abies_subset)
 abline(elev_interaction_mod_abiessubset, col="hot pink")
 abline(abies_elev_poi, col= "light blue")
+```
+The intercept begins around the time the data points begin to increase, and it continues with an upward trend until 
+the end of the graph, just like the data points.
 
-# The intercept begins around the time the data points begin to increase, and it continues with an upward trend until 
-# the end of the graph, just like the data points.
+However, for the acer species, when comparing these plots it confirms suspicion that the OLS distribution is a better fitfor the acer species, the residuals vs leverage graph and scale- location are much more better distributed along the line, and more evenly distributed in space during the OLS regression rather than the poisson regression. 
 
-# However, for the acer species,
-# when comparing these plots it confirms suspicion that the OLS distribution is a better fit
-# for the acer species, the residuals vs leverage graph and scale- location are much more
-# better distributed along the line, and more evenly distributed in space during the OLS regression
-# rather than the poisson regression. 
-
+```{r}
 par(mfrow= c(2,2))
 plot(final_acer_model)
 plot(final_acer_poisson)
+```
 
-# more proof that OLS is better for acer, and poisson is better for abies
+more (numerical) proof that OLS is better for acer, and poisson is better for abies
+```{r}
 pseudo_r2(final_acer_poisson)
 pseudo_r2(final_abies_poisson)
-
 # Compare these to the output adjusted r squared from normal 
 summary(final_acer_model)
 summary(final_abies_model)
-# this further proves that OLS is better fitted for the Acer species as the pseudo r^2 value
-# is less than the normal r^2 value, whereas the pseudo R^2 value for abies is higher than the OLS value
+```
+This further proves that OLS is better fitted for the Acer species as the pseudo R^2 value is less than the normal r^2 value, whereas the pseudo R^2 value for abies poisson distribution is higher than the OLS value
 
-# So, it can be concluded that the best models to represent the cover for species Acer and Abies are:
-# the OLS regression of Acer (final_acer_model) and the poisson regression of Abies (final_abies_poisson),
-# as the skewed data in the abies species makes it less accurate when using OLS regression.
+So, it can be concluded that the best models to represent the cover for species Acer and Abies are: the OLS regression of Acer (final_acer_model) and the poisson regression of Abies (final_abies_poisson), as the skewed elevation data in the abies species makes it less accurate when using OLS regression.
 
-#' 4. (optional) Examine the behavior of the function stepAIC() using the exploratory 
-#' models developed above. This is a very simple and not very robust machine learning 
-#' stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
+4. (optional) Examine the behavior of the function stepAIC() using the exploratory models developed above. This is a very simple and not very robust machine learning stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
 
-# repeat of the stepAIC used in the model selection above to answer question four.
+Repeat of the stepAIC used in the model selection above to answer question four. Using the acersubset and elevation interaction.
+```{r}
 stepAIC(elev_interaction_mod_acersubset)
+```
 
-# using the output from the stepAIC(elev_interaction_mod_acersubset) it can be used to describe the functionality of stepAIC().
-# when used the stepwise function takes a backward approach by first looking at all of the variables included in a model taken in the function.
-# By running through the function the first time it is identified that the overall AIC is 1310.9, however after the second output when the function
-# is modified it is identified to have an AIC of 1309.36. It can be seen that this is equivalent to the AIC Value corresponding to the elev:streamdist 
-# ,it can be concluded that the stepAIC function identifies the AIC value of the model IF the variable it is describing is dropped. From this output it 
-# can be further concluded that these are the variables which can be removed to to improve the model in a simple way.So, using the Acer subset, the variables 
-# elev:streamdist is the onlt variables that should be considered to be removed. However, in the stepAIC(elev_interaction_mod_abiessubset), shown below, it can be 
-# determined that removing elev:beers and beers will both improve the proposed model. 
-
+using the output from the stepAIC(elev_interaction_mod_acersubset) it can be used to describe the functionality of stepAIC(). When used the stepwise function takes a backward approach by first looking at all of the variables included in a model taken in the function. By running through the function the first time it is identified that the overall AIC is 1310.9, however after the second output when the function is modified it is identified to have an AIC of 1309.36. It can be seen that this is equivalent to the AIC Value corresponding to the elev:streamdist,it can be concluded that the stepAIC function identifies the AIC value of the model IF the variable it is describing is dropped. From this output it can be further concluded that these are the variables which can be removed to to improve the model in a simple way.So, using the Acer subset, the variable elev:streamdist is the only variables that should be considered to be removed. However, in the stepAIC(elev_interaction_mod_abiessubset), shown below, it can be determined that removing elev:beers and beers will both improve the proposed model by lowering the AIC value.
+```{r}
 stepAIC(elev_interaction_mod_abiessubset)
+```
